@@ -5,11 +5,14 @@ def executar_script_sql(arquivo_sql, conexao):
         script = f.read()
     conexao.executescript(script)
 
-def testar_criacao_banco():
+def salvar_no_banco(df_covid, df_ibge):
     conn = sqlite3.connect("dados.db")
-    executar_script_sql("create_tables.sql", conn)  # arquivo está na mesma pasta do script
-    print("Script SQL executado com sucesso. Tabelas criadas.")
-    conn.close()
 
-if __name__ == "__main__":
-    testar_criacao_banco()
+    # Executa o script SQL para criar as tabelas com esquema definido
+    executar_script_sql("load/create_tables.sql", conn)  # ajuste caminho se necessário
+
+    # Insere os dados mantendo o esquema criado
+    df_covid.to_sql("covid", conn, if_exists="append", index=False)
+    df_ibge.to_sql("populacao", conn, if_exists="append", index=False)
+
+    conn.close()
